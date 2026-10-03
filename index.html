@@ -3,11 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" id="themeColor" content="#7CC4F2">
+<meta name="theme-color" id="themeColor" content="#E6E6E2">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
-<title>하늘 시계</title>
+<title>FLO</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600&family=Noto+Sans+KR:wght@400;500&display=swap" rel="stylesheet">
@@ -131,6 +131,13 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
 .mini-hold{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--muted);text-align:center}
 .mini-hold.on{display:flex}
 .mini-hold button{height:46px;padding:0 22px;border-radius:23px;border:0;background:var(--key);color:var(--key-ink);font-size:15px;cursor:pointer}
+.page{min-width:0;overflow:hidden}.pomo-page{color:var(--ink)}
+.dial.adjustable{cursor:grab;touch-action:none}.dial.adjustable:active{cursor:grabbing}
+.bg-swatches{display:flex;flex-wrap:wrap;gap:12px;padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.bg-sw{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);cursor:pointer;position:relative;padding:0;display:grid;place-items:center;font-size:11px;color:var(--muted);background:var(--key)}
+.bg-sw.sel{outline:2.5px solid var(--focus);outline-offset:3px}
+.bg-sw input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.ver{text-align:center;color:var(--muted);font-size:12px;margin-top:18px}
 .swatch{width:28px;height:28px;border-radius:50%;flex:none;border:1px solid var(--line)}
 .setsInfo{font-size:12px;color:var(--muted);margin-top:4px;text-align:center;min-height:16px}
 :root[data-theme-name="clouds"]{--sky:#F6DCE6;--sky-ink:#7A3F59;--sky-soft:rgba(122,63,89,.55);--clock-face:#FFFBF8;--clock-tick:#7A3F59;--clock-dim:#D9A8BE;--hand:#7A3F59;--focus:#FF8FA3;--rest:#8FD9C4}
@@ -189,7 +196,7 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>
         </button>
         <button class="icon-btn" id="openSettings" aria-label="설정">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></svg>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
         </button>
         <button class="icon-btn fs-btn" aria-label="전체 화면">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
@@ -260,7 +267,15 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
         </div>
       </div>
     </div>
-    <div class="group-title">하늘 시계 색</div>
+    <div class="group-title">시간 단위</div>
+    <div class="rows" id="stepRows"></div>
+    <p class="lead" style="margin:6px 0 0;">1분 단위로 바꾸면 짧은 타이머로도 쓸 수 있어요. 타이머 화면의 다이얼을 손가락으로 돌려서 시간을 맞출 수도 있어요.</p>
+
+    <div class="group-title">바탕색</div>
+    <div class="bg-swatches" id="bgRows"></div>
+    <p class="lead" style="margin:6px 0 0;">'기본'은 고른 테마의 색을 따라가요. 맨 끝 동그라미를 누르면 원하는 색을 직접 고를 수 있어요.</p>
+
+    <div class="group-title">어두운 화면 모드</div>
     <div class="rows">
       <div class="row">
         <div class="label">폰 화면 모드에 맞추기</div>
@@ -332,6 +347,7 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     <div class="group-title">알림 소리</div>
     <div class="rows" id="soundRows"></div>
     <button class="confirm" id="confirm">이대로 할게요</button>
+    <div class="ver">FLO v1.0</div>
   </div>
 </section>
 
@@ -378,6 +394,11 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
   if (S.alertMode === undefined) S.alertMode = 'both';
   if (S.longBreak === undefined) S.longBreak = false;
   if (S.longRest === undefined) S.longRest = 15;
+  if (S.step === undefined) S.step = 5;
+  if (S.bg === undefined) S.bg = null;
+  const LIMITS1 = { focus:[1,60], rest:[1,30], longRest:[1,30], sets:[1,8] };
+  const lim = (k, step) => (step === 1 ? LIMITS1 : LIMITS)[k];
+  const BG_PRESETS = ['#E6E6E2','#D9E4DC','#F2DCD3','#DADFF0','#F1E7C9','#2B2D31','#1F3A34'];
   const ALERTS = {
     both:  { name:'소리 + 진동', short:'소리+진동', icon:'🔔' },
     sound: { name:'소리만',      short:'소리',      icon:'🔊' },
@@ -515,6 +536,7 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     $('iconPlay').style.display = running ? 'none' : '';
     $('iconPause').style.display = running ? '' : 'none';
     $('toggle').setAttribute('aria-label', running ? '잠깐 멈추기' : '시작');
+    syncDialMode();
     $('tally').innerHTML = '<span></span>'.repeat(Math.min(todayN(), 16));
     $('setsLabel').textContent = S.sets > 0 ? `오늘 ${todayN()} / ${S.sets} 세트` : '';
     lastSec = -1; render();
@@ -589,6 +611,35 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     if (document.visibilityState === 'visible') { maintainWake(); if (running) { if (left() <= 0) finish(); else loop(); } }
   });
 
+  const phaseKey = () => phase === 'focus' ? 'focus' : (longNow ? 'longRest' : 'rest');
+  const dialEl = document.querySelector('svg.dial');
+  let dragging = false, dragVal = 0;
+  function dialMinutes(ev){
+    const r = dialEl.getBoundingClientRect();
+    const x = ev.clientX - (r.left + r.width/2), y = ev.clientY - (r.top + r.height/2);
+    let ang = Math.atan2(x, -y) * 180 / Math.PI; if (ang < 0) ang += 360;
+    const step = S.step, k = phaseKey(), [lo, hi] = lim(k, step);
+    let m = Math.round(ang / 6 / step) * step;
+    if (m === 0) m = dragVal > 30 ? 60 : lo;
+    return Math.min(hi, Math.max(lo, m));
+  }
+  function setFromDial(ev){
+    const m = dialMinutes(ev);
+    if (m === dragVal) return;
+    dragVal = m; S[phaseKey()] = m; remain = total(); render();
+    try { navigator.vibrate && navigator.vibrate(5); } catch(e){}
+  }
+  dialEl.addEventListener('pointerdown', ev => {
+    if (running) return;
+    dragging = true; dragVal = S[phaseKey()];
+    dialEl.setPointerCapture(ev.pointerId); setFromDial(ev); ev.preventDefault();
+  });
+  dialEl.addEventListener('pointermove', ev => { if (dragging) setFromDial(ev); });
+  const endDrag = () => { if (!dragging) return; dragging = false; store.set('pomo-settings-v2', S); $('hint').textContent = ''; renderStatic(); };
+  dialEl.addEventListener('pointerup', endDrag);
+  dialEl.addEventListener('pointercancel', endDrag);
+  function syncDialMode(){ dialEl.classList.toggle('adjustable', !running); }
+
   $('toggle').addEventListener('click', () => running ? pause() : start());
   $('reset').addEventListener('click', reset);
   $('skip').addEventListener('click', skip);
@@ -602,13 +653,21 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     $('notifyBgToggle').setAttribute('aria-checked', String(draft.notifyBg));
     $('longBreakToggle').setAttribute('aria-checked', String(draft.longBreak));
     $('vLongRest').textContent = draft.longRest;
+    $('stepRows').innerHTML = [[5,'5분 단위 (뽀모도로)'],[1,'1분 단위 (타이머)']].map(([v, name]) =>
+      `<div class="row sound${draft.step===v?' sel':''}" data-step="${v}" role="radio" aria-checked="${draft.step===v}" tabindex="0">
+        <div class="label"><span class="radio"></span>${name}</div></div>`).join('');
+    const custom = draft.bg && !BG_PRESETS.includes(draft.bg) ? draft.bg : null;
+    $('bgRows').innerHTML =
+      `<button class="bg-sw${!draft.bg?' sel':''}" data-bg="" aria-label="테마 기본색">기본</button>` +
+      BG_PRESETS.map(c => `<button class="bg-sw${draft.bg===c?' sel':''}" data-bg="${c}" style="background:${c}" aria-label="바탕색 ${c}"></button>`).join('') +
+      `<label class="bg-sw${custom?' sel':''}" style="background:${custom || 'conic-gradient(#f66,#fd6,#6d8,#6cf,#a7f,#f6c,#f66)'}" aria-label="바탕색 직접 고르기"><input type="color" id="bgPick" value="${custom || '#cfe3d8'}"></label>`;
     $('alertRows').innerHTML = ALERT_ORDER.map(k =>
       `<div class="row sound${draft.alertMode===k?' sel':''}" data-alert="${k}" role="radio" aria-checked="${draft.alertMode===k}" tabindex="0">
         <div class="label"><span class="radio"></span>${ALERTS[k].name}</div>
         <span aria-hidden="true" style="font-size:20px">${ALERTS[k].icon}</span>
       </div>`).join('');
     document.querySelectorAll('.step').forEach(b => {
-      const k = b.dataset.k, d = +b.dataset.d, [lo, hi] = LIMITS[k];
+      const k = b.dataset.k, d = +b.dataset.d, [lo, hi] = lim(k, draft.step);
       b.disabled = d < 0 ? draft[k] <= lo : draft[k] >= hi;
     });
     $('soundRows').innerHTML = Object.entries(SOUNDS).map(([k, v]) =>
@@ -634,6 +693,27 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
   });
   $('autoAdvanceToggle').addEventListener('click', () => { draft.autoAdvance = !draft.autoAdvance; renderDraft(); });
   $('longBreakToggle').addEventListener('click', () => { draft.longBreak = !draft.longBreak; renderDraft(); });
+  const snapDraft = () => {
+    ['focus','rest','longRest'].forEach(k => {
+      const [lo, hi] = lim(k, draft.step);
+      let v = draft.step === 5 ? Math.round(draft[k] / 5) * 5 : draft[k];
+      draft[k] = Math.min(hi, Math.max(lo, v));
+    });
+  };
+  $('stepRows').addEventListener('click', e => {
+    const r = e.target.closest('[data-step]');
+    if (r) { draft.step = +r.dataset.step; snapDraft(); renderDraft(); }
+  });
+  $('bgRows').addEventListener('click', e => {
+    const b = e.target.closest('button[data-bg]');
+    if (b) { draft.bg = b.dataset.bg || null; renderDraft(); applyBg(draft.bg); }
+  });
+  $('bgRows').addEventListener('input', e => {
+    if (e.target.id === 'bgPick') { draft.bg = e.target.value.toUpperCase(); applyBg(draft.bg);
+      const lbl = e.target.parentElement; lbl.style.background = draft.bg;
+      $('bgRows').querySelectorAll('.bg-sw').forEach(x => x.classList.toggle('sel', x === lbl)); }
+  });
+  $('bgRows').addEventListener('change', e => { if (e.target.id === 'bgPick') renderDraft(); });
   $('alertRows').addEventListener('click', e => {
     const r = e.target.closest('[data-alert]');
     if (r) { draft.alertMode = r.dataset.alert; renderDraft(); }
@@ -648,17 +728,19 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     }
   });
   document.querySelectorAll('.step').forEach(b => b.addEventListener('click', () => {
-    const k = b.dataset.k, [lo, hi] = LIMITS[k];
-    draft[k] = Math.min(hi, Math.max(lo, draft[k] + (+b.dataset.d))); renderDraft();
+    const k = b.dataset.k, [lo, hi] = lim(k, draft.step), d = +b.dataset.d;
+    const delta = k === 'sets' ? d : Math.sign(d) * draft.step;
+    draft[k] = Math.min(hi, Math.max(lo, draft[k] + delta)); renderDraft();
   }));
   function openSettings(){ if (running) pause(); draft = { ...S }; renderDraft(); $('settings').classList.add('open'); }
   $('skyAutoToggle').addEventListener('click', () => { draft.skyAuto = !draft.skyAuto; renderDraft(); });
   $('openSettings').addEventListener('click', openSettings);
   $('confirm').addEventListener('click', () => {
-    const timeChanged = draft.focus !== S.focus || draft.rest !== S.rest || draft.longRest !== S.longRest || draft.longBreak !== S.longBreak;
+    snapDraft();
+    const timeChanged = draft.focus !== S.focus || draft.rest !== S.rest || draft.longRest !== S.longRest || draft.longBreak !== S.longBreak || draft.step !== S.step;
     S = { ...draft }; store.set('pomo-settings-v2', S);
     if (timeChanged) { phase = 'focus'; longNow = false; remain = total(); $('hint').textContent = ''; }
-    applySky(); applyTheme(); maintainWake();
+    applySky(); applyTheme(); applyBg(S.bg); maintainWake();
     $('settings').classList.remove('open'); renderStatic();
   });
 
@@ -674,7 +756,7 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     const d = pipWin.document;
     document.querySelectorAll('link[rel="stylesheet"], style').forEach(n => d.head.appendChild(n.cloneNode(true)));
     const extra = d.createElement('style');
-    extra.textContent = `html,body{height:100%;margin:0}body{background:var(--bg);display:flex;overflow:hidden}
+    extra.textContent = `html,body{height:100%;margin:0}body{background:var(--bg);color:var(--ink);display:flex;overflow:hidden}
       #pomoStage{flex:1;height:100%;padding:10px;justify-content:center}
       #pomoStage svg.dial{width:min(78vw,52vh)}
       #pomoStage .time{font-size:34px}#pomoStage .phase{font-size:13px;margin-top:4px}
@@ -685,8 +767,9 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     d.documentElement.className = document.documentElement.className;
     const tn = document.documentElement.getAttribute('data-theme-name');
     if (tn) d.documentElement.setAttribute('data-theme-name', tn);
-    d.title = '집중 타이머';
+    d.title = 'FLO';
     d.body.appendChild($('pomoStage'));
+    if (S.bg) { const v = bgVars(S.bg); BG_VARS.forEach(k => d.body.style.setProperty(k, v[k])); }
     $('miniHold').classList.add('on');
     pager.scrollTo({ left: pager.clientWidth });
     pipWin.addEventListener('pagehide', () => {
@@ -753,13 +836,27 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
   const pager = $('pager'), navBtns = document.querySelectorAll('.nav button');
   function applySky(){ document.documentElement.classList.toggle('sky-fixed', !S.skyAuto); }
   function applyTheme(){ document.documentElement.setAttribute('data-theme-name', S.theme); }
+  const BG_VARS = ['--sky','--bg','--sky-ink','--sky-soft','--ink','--muted','--key','--key-ink','--line','--bar-dim'];
+  function bgVars(c){
+    const n = parseInt(c.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255;
+    const dark = (0.2126*r + 0.7152*g + 0.0722*b) < 128;
+    return dark
+      ? { '--sky':c, '--bg':c, '--sky-ink':'#EEF2F5', '--sky-soft':'rgba(238,242,245,.6)', '--ink':'#EEEEEA', '--muted':'rgba(238,238,234,.62)', '--key':'rgba(255,255,255,.14)', '--key-ink':'#EEEEEA', '--line':'rgba(255,255,255,.1)', '--bar-dim':'rgba(255,255,255,.15)' }
+      : { '--sky':c, '--bg':c, '--sky-ink':'#1E2226', '--sky-soft':'rgba(30,34,38,.55)', '--ink':'#1E1E1D', '--muted':'rgba(30,30,29,.55)', '--key':'rgba(0,0,0,.08)', '--key-ink':'#1E1E1D', '--line':'rgba(0,0,0,.09)', '--bar-dim':'rgba(0,0,0,.1)' };
+  }
+  function bgTargets(){ const t = [$('pager'), document.querySelector('.nav')]; if (pipWin) t.push(pipWin.document.body); return t; }
+  function applyBg(c){
+    const vars = c ? bgVars(c) : null;
+    bgTargets().forEach(el => BG_VARS.forEach(k => vars ? el.style.setProperty(k, vars[k]) : el.style.removeProperty(k)));
+    if (typeof curPage !== 'undefined') setPage(curPage);
+  }
   function setPage(i){
     navBtns.forEach((b, j) => b.classList.toggle('on', j === i));
     document.documentElement.classList.toggle('on-pomo', i === 1);
     document.body.classList.toggle('on-pomo', i === 1);
     const cs = getComputedStyle(document.documentElement);
-    $('themeColor').setAttribute('content', (i === 1 ? cs.getPropertyValue('--bg') : cs.getPropertyValue('--sky')).trim());
-    document.title = i === 1 ? '집중 타이머' : '하늘 시계';
+    $('themeColor').setAttribute('content', (S.bg || (i === 1 ? cs.getPropertyValue('--bg') : cs.getPropertyValue('--sky'))).trim());
+    document.title = 'FLO';
   }
   let curPage = 0;
   pager.addEventListener('scroll', () => {
@@ -779,7 +876,7 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     });
   });
 
-  applySky(); applyTheme(); maintainWake();
+  applySky(); applyTheme(); applyBg(S.bg); maintainWake();
   setPage(0); tickClock(); renderStatic();
   if (firstRun) openSettings();
 })();

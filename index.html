@@ -347,7 +347,7 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     <div class="group-title">알림 소리</div>
     <div class="rows" id="soundRows"></div>
     <button class="confirm" id="confirm">이대로 할게요</button>
-    <div class="ver">FLO v1.0</div>
+    <div class="ver">FLO v1.0.1</div>
   </div>
 </section>
 
@@ -374,7 +374,8 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
 <script>
 (function(){
   const $cache = {};
-  const $ = id => $cache[id] || ($cache[id] = document.getElementById(id));
+  document.querySelectorAll('[id]').forEach(el => { $cache[el.id] = el; });
+  const $ = id => { if ($cache[id]) return $cache[id]; const el = document.getElementById(id); if (el) $cache[id] = el; return el; };
   const store = {
     get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
     set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
@@ -541,8 +542,15 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     $('setsLabel').textContent = S.sets > 0 ? `오늘 ${todayN()} / ${S.sets} 세트` : '';
     lastSec = -1; render();
   }
-  function loop(){ render(); if (running && left() <= 0) return finish(); if (running) raf = requestAnimationFrame(loop); }
-  function stopRun(){ running = false; cancelAnimationFrame(raf); clearTimeout(finishTimer); clearTimeout(advanceTimer); disarmTicker(); maintainWake(); }
+  let rafWin = window;
+  function stopFrames(){ try { rafWin.cancelAnimationFrame(raf); } catch(e){} raf = 0; }
+  function loop(){
+    stopFrames();
+    render(); if (running && left() <= 0) return finish();
+    if (running) { rafWin = pipWin || window; raf = rafWin.requestAnimationFrame(loop); }
+  }
+  setInterval(() => { if (running) { render(); if (left() <= 0) finish(); } }, 250);
+  function stopRun(){ running = false; stopFrames(); clearTimeout(finishTimer); clearTimeout(advanceTimer); disarmTicker(); maintainWake(); }
   function logSegment(){ if (running && phase === 'focus') addFocus(Math.min(Date.now(), endAt) - segStart, false); }
 
   function start(){
@@ -750,6 +758,7 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
   if (pipOK && matchMedia('(pointer:fine)').matches) $('miniBtn').hidden = false;
   async function openMini(){
     if (pipWin) return;
+    audio();
     try {
       pipWin = await documentPictureInPicture.requestWindow({ width: 280, height: 380 });
     } catch(e) { pipWin = null; return; }
@@ -772,10 +781,11 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     if (S.bg) { const v = bgVars(S.bg); BG_VARS.forEach(k => d.body.style.setProperty(k, v[k])); }
     $('miniHold').classList.add('on');
     pager.scrollTo({ left: pager.clientWidth });
+    if (running) loop();
     pipWin.addEventListener('pagehide', () => {
       $('miniHold').before($('pomoStage'));
       $('miniHold').classList.remove('on');
-      pipWin = null; render();
+      pipWin = null; render(); if (running) loop();
     });
   }
   $('miniBtn').addEventListener('click', openMini);

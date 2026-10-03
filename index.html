@@ -126,6 +126,11 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
 .chart svg{display:block;width:100%;height:auto;min-width:300px}
 .chart-note{font-size:12px;color:var(--muted);margin-top:8px}
 :root.sky-fixed{--sky:#7CC4F2;--sky-ink:#0F3F63;--sky-soft:rgba(15,63,99,.55);--clock-face:#FBFDFE}
+.alert-btn{font-size:12px;width:auto;padding:0 10px;border-radius:22px;gap:5px;display:inline-flex;align-items:center;opacity:.9;white-space:nowrap}
+.pomo-page .bar{gap:8px}.pomo-page .summary{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;font-size:13px}.pomo-page .grp{flex:none}
+.mini-hold{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;color:var(--muted);text-align:center}
+.mini-hold.on{display:flex}
+.mini-hold button{height:46px;padding:0 22px;border-radius:23px;border:0;background:var(--key);color:var(--key-ink);font-size:15px;cursor:pointer}
 .swatch{width:28px;height:28px;border-radius:50%;flex:none;border:1px solid var(--line)}
 .setsInfo{font-size:12px;color:var(--muted);margin-top:4px;text-align:center;min-height:16px}
 :root[data-theme-name="clouds"]{--sky:#F6DCE6;--sky-ink:#7A3F59;--sky-soft:rgba(122,63,89,.55);--clock-face:#FFFBF8;--clock-tick:#7A3F59;--clock-dim:#D9A8BE;--hand:#7A3F59;--focus:#FF8FA3;--rest:#8FD9C4}
@@ -176,6 +181,10 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     <div class="bar">
       <div class="summary" id="summary"></div>
       <div class="grp">
+        <button class="icon-btn alert-btn" id="alertQuick" aria-label="알림 방식 바꾸기"></button>
+        <button class="icon-btn" id="miniBtn" aria-label="작은 창으로" hidden>
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><rect x="12" y="11" width="7" height="6" rx="1" fill="currentColor" stroke="none"/></svg>
+        </button>
         <button class="icon-btn" id="openStats" aria-label="사용 기록">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>
         </button>
@@ -187,7 +196,7 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
         </button>
       </div>
     </div>
-    <div class="stage">
+    <div class="stage" id="pomoStage">
       <svg class="dial" viewBox="0 0 340 340" role="img" aria-label="남은 시간 다이얼">
         <circle cx="170" cy="170" r="164" fill="var(--face)"/>
         <g id="ticks"></g>
@@ -215,6 +224,10 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
       <div class="tally" id="tally" aria-label="오늘 완료한 집중 횟수"></div>
       <div class="setsInfo" id="setsLabel"></div>
       <div class="hint" id="hint"></div>
+    </div>
+    <div class="mini-hold" id="miniHold">
+      <div>작은 창에서 타이머가 돌아가고 있어요.</div>
+      <button id="miniBack">큰 화면으로 돌아오기</button>
     </div>
   </section>
 </div>
@@ -273,13 +286,27 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
         </div>
       </div>
       <div class="row">
+        <div class="label">세트를 다 마치면 긴 휴식</div>
+        <button class="switch" id="longBreakToggle" role="switch" aria-checked="false" aria-label="긴 휴식">
+          <span class="knob"></span>
+        </button>
+      </div>
+      <div class="row">
+        <div class="label">긴 휴식 시간</div>
+        <div class="stepper">
+          <button class="step" data-k="longRest" data-d="-5" aria-label="긴 휴식 줄이기">−</button>
+          <div class="val"><span id="vLongRest">15</span><small>분</small></div>
+          <button class="step" data-k="longRest" data-d="5" aria-label="긴 휴식 늘리기">+</button>
+        </div>
+      </div>
+      <div class="row">
         <div class="label">다음 단계 자동 시작</div>
         <button class="switch" id="autoAdvanceToggle" role="switch" aria-checked="false" aria-label="다음 단계 자동 시작">
           <span class="knob"></span>
         </button>
       </div>
     </div>
-    <p class="lead" style="margin:6px 0 0;">집중+쉬기 한 번이 1세트예요. 목표 세트에 도달하면 축하 메시지가 떠요. 자동 시작을 켜면 소리가 울린 뒤 잠깐 쉬었다가 다음 단계가 저절로 시작돼요.</p>
+    <p class="lead" style="margin:6px 0 0;">집중+쉬기 한 번이 1세트예요. 목표 세트에 도달하면 축하 메시지가 뜨고, 긴 휴식을 켜두면 그때는 길게 쉬어요. 자동 시작을 켜면 소리가 울린 뒤 잠깐 쉬었다가 다음 단계가 저절로 시작돼요.</p>
 
     <div class="group-title">화면</div>
     <div class="rows">
@@ -290,13 +317,17 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
         </button>
       </div>
       <div class="row">
-        <div class="label">화면이 꺼져도 알림 시도</div>
-        <button class="switch" id="notifyBgToggle" role="switch" aria-checked="false" aria-label="화면이 꺼져도 알림 시도">
+        <div class="label">알림창에도 띄우기</div>
+        <button class="switch" id="notifyBgToggle" role="switch" aria-checked="false" aria-label="알림창에도 띄우기">
           <span class="knob"></span>
         </button>
       </div>
     </div>
-    <p class="lead" style="margin:6px 0 0;">화면 항상 켜짐은 배터리를 많이 써요. '꺼져도 알림 시도'는 최선을 다해보는 기능이라, 폰이 완전히 잠들어 있으면 안 울릴 수 있어요.</p>
+    <p class="lead" style="margin:6px 0 0;">화면 항상 켜짐은 배터리를 많이 써요. 알림창에도 띄우기를 켜면 컴퓨터에서 창을 내려놔도 화면 구석에 알림이 떠요.</p>
+
+    <div class="group-title">알림 방식</div>
+    <div class="rows" id="alertRows"></div>
+    <p class="lead" style="margin:6px 0 0;">타이머 화면 위쪽 버튼을 누르면 바로 바꿀 수도 있어요.</p>
 
     <div class="group-title">알림 소리</div>
     <div class="rows" id="soundRows"></div>
@@ -326,14 +357,15 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
 
 <script>
 (function(){
-  const $ = id => document.getElementById(id);
+  const $cache = {};
+  const $ = id => $cache[id] || ($cache[id] = document.getElementById(id));
   const store = {
     get(k, d){ try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } },
     set(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){} }
   };
 
   /* ---------- settings ---------- */
-  const LIMITS = { focus:[10,60], rest:[5,20], sets:[1,8] };
+  const LIMITS = { focus:[10,60], rest:[5,20], sets:[1,8], longRest:[10,30] };
   let S = store.get('pomo-settings-v2', null);
   const firstRun = !S;
   if (!S) { const old = store.get('pomo-settings-v1', null); S = { focus: old?.focus || 25, rest: old?.rest || 5, sound: 'bell', skyAuto: true, theme:'sky', autoAdvance:false, sets:4, wakeAlways:false, notifyBg:false }; }
@@ -343,6 +375,16 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
   if (S.sets === undefined) S.sets = 4;
   if (S.wakeAlways === undefined) S.wakeAlways = false;
   if (S.notifyBg === undefined) S.notifyBg = false;
+  if (S.alertMode === undefined) S.alertMode = 'both';
+  if (S.longBreak === undefined) S.longBreak = false;
+  if (S.longRest === undefined) S.longRest = 15;
+  const ALERTS = {
+    both:  { name:'소리 + 진동', short:'소리+진동', icon:'🔔' },
+    sound: { name:'소리만',      short:'소리',      icon:'🔊' },
+    vib:   { name:'진동만',      short:'진동',      icon:'📳' },
+    mute:  { name:'무음 (화면에만 표시)', short:'무음', icon:'🔕' }
+  };
+  const ALERT_ORDER = ['both','sound','vib','mute'];
   let draft = { ...S };
 
   /* ---------- log ---------- */
@@ -424,7 +466,16 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
 
   /* ---------- pomodoro ---------- */
   let phase = 'focus', running = false, endAt = 0, remain = S.focus*60000, segStart = 0;
-  let raf = 0, finishTimer = 0, advanceTimer = 0, wakeLock = null;
+  let raf = 0, finishTimer = 0, advanceTimer = 0, wakeLock = null, longNow = false;
+  // A worker keeps time even when the window is minimized (main-thread timers get slowed down).
+  let ticker = null;
+  try {
+    const src = "let t=0;onmessage=e=>{clearTimeout(t);if(e.data>0)t=setTimeout(()=>postMessage('done'),e.data)}";
+    ticker = new Worker(URL.createObjectURL(new Blob([src], { type:'text/javascript' })));
+    ticker.onmessage = () => { if (running && left() <= 50) finish(); else if (running) armTicker(); };
+  } catch(e) { ticker = null; }
+  function armTicker(){ if (ticker) ticker.postMessage(Math.max(0, endAt - Date.now()) + 30); }
+  function disarmTicker(){ if (ticker) ticker.postMessage(0); }
   const R = 118;
   (function buildDial(){
     let s = '';
@@ -442,7 +493,7 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     const a = f * 2 * Math.PI;
     return `M ${cx} ${cy} L ${cx} ${cy-R} A ${R} ${R} 0 ${f>0.5?1:0} 1 ${cx+R*Math.sin(a)} ${cy-R*Math.cos(a)} Z`;
   }
-  const total = () => (phase === 'focus' ? S.focus : S.rest) * 60000;
+  const total = () => (phase === 'focus' ? S.focus : (longNow ? S.longRest : S.rest)) * 60000;
   const left = () => running ? Math.max(0, endAt - Date.now()) : remain;
   function fmtClock(ms){ const s = Math.ceil(ms/1000); return pad(Math.floor(s/60)) + ':' + pad(s%60); }
 
@@ -455,10 +506,11 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     $('time').textContent = fmtClock(ms);
   }
   function renderStatic(){
-    $('summary').innerHTML = `집중 <b>${S.focus}분</b>, 쉬기 <b>${S.rest}분</b>`;
+    $('summary').innerHTML = `<b>${S.focus}</b>분 집중 · <b>${S.rest}</b>분 쉬기`;
     const p = $('phase');
     p.classList.toggle('rest', phase === 'rest');
-    p.querySelector('span').textContent = phase === 'focus' ? '집중 시간' : '쉬는 시간';
+    p.querySelector('span').textContent = phase === 'focus' ? '집중 시간' : (longNow ? '긴 휴식' : '쉬는 시간');
+    renderAlertQuick();
     $('toggle').classList.toggle('rest', phase === 'rest');
     $('iconPlay').style.display = running ? 'none' : '';
     $('iconPause').style.display = running ? '' : 'none';
@@ -468,7 +520,7 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     lastSec = -1; render();
   }
   function loop(){ render(); if (running && left() <= 0) return finish(); if (running) raf = requestAnimationFrame(loop); }
-  function stopRun(){ running = false; cancelAnimationFrame(raf); clearTimeout(finishTimer); clearTimeout(advanceTimer); maintainWake(); }
+  function stopRun(){ running = false; cancelAnimationFrame(raf); clearTimeout(finishTimer); clearTimeout(advanceTimer); disarmTicker(); maintainWake(); }
   function logSegment(){ if (running && phase === 'focus') addFocus(Math.min(Date.now(), endAt) - segStart, false); }
 
   function start(){
@@ -476,21 +528,29 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     running = true; endAt = Date.now() + remain; segStart = Date.now();
     clearTimeout(finishTimer);
     finishTimer = setTimeout(() => { if (running && left() <= 0) finish(); }, remain + 50);
+    armTicker();
     maintainWake(); $('hint').textContent = '';
     renderStatic(); loop();
   }
   function pause(){ logSegment(); remain = left(); stopRun(); renderStatic(); }
-  function switchPhase(){ phase = phase === 'focus' ? 'rest' : 'focus'; remain = total(); }
+  function switchPhase(fromFinish){
+    if (phase === 'focus') {
+      const n = todayN();
+      longNow = !!(fromFinish && S.longBreak && S.sets > 0 && n > 0 && n % S.sets === 0);
+      phase = 'rest';
+    } else { phase = 'focus'; longNow = false; }
+    remain = total();
+  }
   function finish(){
     const wasFocus = phase === 'focus';
     if (wasFocus) addFocus(endAt - segStart, true);
-    stopRun(); switchPhase();
-    playSound(S.sound);
-    try { navigator.vibrate && navigator.vibrate([300,150,300,150,500]); } catch(e){}
+    stopRun(); switchPhase(true);
+    if (S.alertMode === 'both' || S.alertMode === 'sound') playSound(S.sound);
+    if (S.alertMode === 'both' || S.alertMode === 'vib') { try { navigator.vibrate && navigator.vibrate([300,150,300,150,500]); } catch(e){} }
     notifyFinish(wasFocus);
     const n = todayN();
     const setDone = wasFocus && S.sets > 0 && n > 0 && n % S.sets === 0;
-    const base = setDone ? `${S.sets}세트를 다 마쳤어요! 정말 잘했어요` : (wasFocus ? '잘했어요! 이제 쉬어요.' : '다시 집중해 볼까요?');
+    const base = setDone ? `${S.sets}세트를 다 마쳤어요! 정말 잘했어요.${longNow ? ' 이번엔 길게 쉬어요.' : ''}` : (wasFocus ? '잘했어요! 이제 쉬어요.' : '다시 집중해 볼까요?');
     $('hint').textContent = base + (S.autoAdvance ? ' 곧 자동으로 시작돼요.' : ' 시작을 눌러요.');
     renderStatic();
     if (S.autoAdvance) { clearTimeout(advanceTimer); advanceTimer = setTimeout(() => { if (!running) start(); }, 1400); }
@@ -508,7 +568,19 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     } catch(e){}
   }
   function reset(){ logSegment(); stopRun(); remain = total(); $('hint').textContent = ''; renderStatic(); }
-  function skip(){ logSegment(); stopRun(); switchPhase(); $('hint').textContent = ''; renderStatic(); }
+  function skip(){ logSegment(); stopRun(); switchPhase(false); $('hint').textContent = ''; renderStatic(); }
+  function renderAlertQuick(){
+    const a = ALERTS[S.alertMode];
+    $('alertQuick').innerHTML = `<span aria-hidden="true">${a.icon}</span><span>${a.short}</span>`;
+    $('alertQuick').setAttribute('aria-label', `알림 방식: ${a.name}. 눌러서 바꾸기`);
+  }
+  $('alertQuick').addEventListener('click', () => {
+    S.alertMode = ALERT_ORDER[(ALERT_ORDER.indexOf(S.alertMode) + 1) % ALERT_ORDER.length];
+    store.set('pomo-settings-v2', S); renderAlertQuick();
+    if (S.alertMode === 'vib' || S.alertMode === 'both') { try { navigator.vibrate && navigator.vibrate(120); } catch(e){} }
+  });
+  // Ask before closing the program while a timer is running
+  window.addEventListener('beforeunload', e => { if (running) { e.preventDefault(); e.returnValue = ''; } });
 
   async function lockScreen(){ try { if ('wakeLock' in navigator && !wakeLock) { wakeLock = await navigator.wakeLock.request('screen'); wakeLock.addEventListener('release', () => wakeLock = null); } } catch(e){} }
   function unlockScreen(){ try { wakeLock && wakeLock.release(); } catch(e){} wakeLock = null; }
@@ -528,6 +600,13 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     $('autoAdvanceToggle').setAttribute('aria-checked', String(draft.autoAdvance));
     $('wakeAlwaysToggle').setAttribute('aria-checked', String(draft.wakeAlways));
     $('notifyBgToggle').setAttribute('aria-checked', String(draft.notifyBg));
+    $('longBreakToggle').setAttribute('aria-checked', String(draft.longBreak));
+    $('vLongRest').textContent = draft.longRest;
+    $('alertRows').innerHTML = ALERT_ORDER.map(k =>
+      `<div class="row sound${draft.alertMode===k?' sel':''}" data-alert="${k}" role="radio" aria-checked="${draft.alertMode===k}" tabindex="0">
+        <div class="label"><span class="radio"></span>${ALERTS[k].name}</div>
+        <span aria-hidden="true" style="font-size:20px">${ALERTS[k].icon}</span>
+      </div>`).join('');
     document.querySelectorAll('.step').forEach(b => {
       const k = b.dataset.k, d = +b.dataset.d, [lo, hi] = LIMITS[k];
       b.disabled = d < 0 ? draft[k] <= lo : draft[k] >= hi;
@@ -554,6 +633,11 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
     if (r) { draft.theme = r.dataset.theme; renderDraft(); }
   });
   $('autoAdvanceToggle').addEventListener('click', () => { draft.autoAdvance = !draft.autoAdvance; renderDraft(); });
+  $('longBreakToggle').addEventListener('click', () => { draft.longBreak = !draft.longBreak; renderDraft(); });
+  $('alertRows').addEventListener('click', e => {
+    const r = e.target.closest('[data-alert]');
+    if (r) { draft.alertMode = r.dataset.alert; renderDraft(); }
+  });
   $('wakeAlwaysToggle').addEventListener('click', () => { draft.wakeAlways = !draft.wakeAlways; renderDraft(); });
   $('notifyBgToggle').addEventListener('click', () => {
     draft.notifyBg = !draft.notifyBg; renderDraft();
@@ -571,12 +655,48 @@ svg.dial{width:min(82vw,48vh,420px);height:auto;display:block}
   $('skyAutoToggle').addEventListener('click', () => { draft.skyAuto = !draft.skyAuto; renderDraft(); });
   $('openSettings').addEventListener('click', openSettings);
   $('confirm').addEventListener('click', () => {
-    const timeChanged = draft.focus !== S.focus || draft.rest !== S.rest;
+    const timeChanged = draft.focus !== S.focus || draft.rest !== S.rest || draft.longRest !== S.longRest || draft.longBreak !== S.longBreak;
     S = { ...draft }; store.set('pomo-settings-v2', S);
-    if (timeChanged) { phase = 'focus'; remain = total(); $('hint').textContent = ''; }
+    if (timeChanged) { phase = 'focus'; longNow = false; remain = total(); $('hint').textContent = ''; }
     applySky(); applyTheme(); maintainWake();
     $('settings').classList.remove('open'); renderStatic();
   });
+
+  /* ---------- PC mini window ---------- */
+  let pipWin = null;
+  const pipOK = 'documentPictureInPicture' in window;
+  if (pipOK && matchMedia('(pointer:fine)').matches) $('miniBtn').hidden = false;
+  async function openMini(){
+    if (pipWin) return;
+    try {
+      pipWin = await documentPictureInPicture.requestWindow({ width: 280, height: 380 });
+    } catch(e) { pipWin = null; return; }
+    const d = pipWin.document;
+    document.querySelectorAll('link[rel="stylesheet"], style').forEach(n => d.head.appendChild(n.cloneNode(true)));
+    const extra = d.createElement('style');
+    extra.textContent = `html,body{height:100%;margin:0}body{background:var(--bg);display:flex;overflow:hidden}
+      #pomoStage{flex:1;height:100%;padding:10px;justify-content:center}
+      #pomoStage svg.dial{width:min(78vw,52vh)}
+      #pomoStage .time{font-size:34px}#pomoStage .phase{font-size:13px;margin-top:4px}
+      #pomoStage .keys{gap:12px;margin-top:10px}
+      #pomoStage .key{width:42px;height:42px}#pomoStage .key.main{width:56px;height:56px}
+      #pomoStage .tally,#pomoStage .setsInfo{display:none}#pomoStage .hint{font-size:11px;margin-top:4px}`;
+    d.head.appendChild(extra);
+    d.documentElement.className = document.documentElement.className;
+    const tn = document.documentElement.getAttribute('data-theme-name');
+    if (tn) d.documentElement.setAttribute('data-theme-name', tn);
+    d.title = '집중 타이머';
+    d.body.appendChild($('pomoStage'));
+    $('miniHold').classList.add('on');
+    pager.scrollTo({ left: pager.clientWidth });
+    pipWin.addEventListener('pagehide', () => {
+      $('miniHold').before($('pomoStage'));
+      $('miniHold').classList.remove('on');
+      pipWin = null; render();
+    });
+  }
+  $('miniBtn').addEventListener('click', openMini);
+  $('miniBack').addEventListener('click', () => { if (pipWin) pipWin.close(); });
 
   /* ---------- stats sheet ---------- */
   let tab = 'day';
